@@ -6,3 +6,5 @@ Jefe del proyecto: Jaume
 
 Desarrollador : Julio
 
+Desarrollador: Marcos
+
