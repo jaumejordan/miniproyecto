@@ -2,7 +2,13 @@
 
 
 
-Jefe del proyecto: Jaume 
+Jefe del proyecto: Jaume
 
 Desarrollador : Julio
 
+
+
+
+
+
+Desarrollador: Yerai Cortés Pérez
