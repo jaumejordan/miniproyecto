@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#101512">
-    <title>Pong — First to five</title>
+    <title>Hushlight — Find your way out</title>
     <style>
       :root {
         color-scheme: dark;
@@ -206,6 +206,7 @@
         .mobile-hint { display: inline; }
       }
     </style>
+    <link rel="stylesheet" href="echo-maze.css">
   </head>
   <body>
     <main class="game">
@@ -395,6 +396,7 @@
         }
 
         function frame(time) {
+          if (!canvas.isConnected) return;
           const delta = Math.min((time - lastTime) / 1000 || 0, .03);
           lastTime = time;
           if (state === "playing") update(delta);
@@ -455,5 +457,6 @@
         requestAnimationFrame(frame);
       })();
     </script>
+    <script src="echo-maze.js"></script>
   </body>
 </html>

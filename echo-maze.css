@@ -1,0 +1,124 @@
+:root {
+  color-scheme: dark;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #101512;
+  color: #f0f3e8;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  display: grid;
+  place-items: center;
+  padding: 28px 20px;
+  background:
+    radial-gradient(ellipse at 50% 42%, rgba(84, 111, 77, .13), transparent 58%),
+    #101512;
+}
+
+.game { width: min(100%, 900px); }
+.topline, .hud, .bottomline { display: flex; align-items: center; justify-content: space-between; }
+.topline { margin-bottom: 20px; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-mark {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border: 1px solid #35443a;
+  border-radius: 12px;
+  color: #c4f26b;
+  font-size: 15px;
+  font-weight: 800;
+}
+.brand-name { margin: 0; font-size: 15px; font-weight: 700; }
+.brand-caption, .hud-label, .eyebrow, .bottomline {
+  color: #89938b;
+  font-size: 10px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.brand-caption { margin: 3px 0 0; }
+.status { display: flex; align-items: center; gap: 8px; color: #a7b0a7; font-size: 12px; }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: #647064; }
+.status.is-live .status-dot { background: #c4f26b; box-shadow: 0 0 12px rgba(196, 242, 107, .7); }
+.hud { padding: 0 8px 14px; }
+.hud-item { min-width: 90px; }
+.hud-item.right { text-align: right; }
+.hud-value { margin-top: 4px; font-size: 15px; font-weight: 650; }
+.hud-center { color: #9da69e; font-size: 11px; }
+.court {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #303a32;
+  border-radius: 14px;
+  background: #151c17;
+  box-shadow: 0 28px 80px rgba(0, 0, 0, .28);
+}
+canvas { display: block; width: 100%; height: auto; aspect-ratio: 800 / 544; }
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(15, 21, 17, .58);
+  backdrop-filter: blur(5px);
+  text-align: center;
+}
+.overlay[hidden] { display: none; }
+.overlay-card { max-width: 440px; padding: 24px; }
+.eyebrow { margin: 0 0 10px; color: #c4f26b; }
+.overlay h2 { margin: 0; font-size: clamp(26px, 5vw, 38px); font-weight: 650; letter-spacing: -.055em; }
+.overlay-message { margin: 10px 0 22px; color: #a5aea5; font-size: 13px; line-height: 1.6; }
+button {
+  min-height: 42px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 8px;
+  background: #c4f26b;
+  color: #172012;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: background .15s ease, transform .15s ease;
+}
+button:hover { background: #d3ff7f; transform: translateY(-1px); }
+button:focus-visible { outline: 2px solid #f0f3e8; outline-offset: 3px; }
+.bottomline { gap: 12px; padding: 14px 4px 0; font-size: 10px; letter-spacing: .04em; text-transform: none; }
+.key {
+  display: inline-block;
+  margin: 0 2px;
+  padding: 3px 6px;
+  border: 1px solid #354039;
+  border-radius: 4px;
+  color: #b6beb5;
+  font-size: 9px;
+}
+.touch-controls { display: none; }
+
+@media (max-width: 560px) {
+  body { padding: 20px 12px; }
+  .topline { margin-bottom: 16px; }
+  .brand-mark { width: 36px; height: 36px; }
+  .status { font-size: 10px; }
+  .hud { padding-bottom: 10px; }
+  .hud-item { min-width: 70px; }
+  .hud-label, .bottomline { font-size: 9px; }
+  .hud-center { font-size: 10px; text-align: center; }
+  .desktop-hint { display: none; }
+  .touch-controls { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding-top: 12px; }
+  .dpad { display: grid; grid-template: repeat(2, 42px) / repeat(3, 42px); gap: 4px; }
+  .dpad button, .pulse-button { min-height: 42px; padding: 0; background: #202a22; color: #d8e0d4; border: 1px solid #354039; }
+  .dpad button[data-move="up"] { grid-area: 1 / 2; }
+  .dpad button[data-move="left"] { grid-area: 2 / 1; }
+  .dpad button[data-move="down"] { grid-area: 2 / 2; }
+  .dpad button[data-move="right"] { grid-area: 2 / 3; }
+  .pulse-button { padding: 0 14px; background: #c4f26b; color: #172012; }
+}
