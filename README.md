@@ -4,3 +4,5 @@
 
 Jefe del proyecto: Jaume 
 
+Desarrollador : Julio
+
