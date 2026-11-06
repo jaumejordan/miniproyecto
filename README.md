@@ -1,4 +1,4 @@
-\# Mini proyecto conjunto
+# Mini proyecto conjunto
 
 
 
