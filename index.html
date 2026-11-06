@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#101512">
+    <title>Pong — First to five</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #101512;
+        color: #f0f3e8;
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        display: grid;
+        place-items: center;
+        padding: 32px 20px;
+        background:
+          radial-gradient(ellipse at 50% 42%, rgba(84, 111, 77, .13), transparent 58%),
+          #101512;
+      }
+
+      .game {
+        width: min(100%, 900px);
+      }
+
+      .topline, .scoreboard, .bottomline {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .topline { margin-bottom: 22px; }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .brand-mark {
+        display: grid;
+        width: 40px;
+        height: 40px;
+        place-items: center;
+        border: 1px solid #35443a;
+        border-radius: 12px;
+        color: #c4f26b;
+        font-size: 15px;
+        font-weight: 800;
+        letter-spacing: -.08em;
+      }
+
+      .brand-name {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: -.02em;
+      }
+
+      .brand-caption, .round-label, .player-label, .bottomline, .eyebrow {
+        color: #89938b;
+        font-size: 11px;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+      }
+
+      .brand-caption { margin: 3px 0 0; font-size: 10px; }
+
+      .status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #a7b0a7;
+        font-size: 12px;
+      }
+
+      .status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #647064;
+      }
+
+      .status.is-live .status-dot {
+        background: #c4f26b;
+        box-shadow: 0 0 12px rgba(196, 242, 107, .7);
+      }
+
+      .scoreboard {
+        padding: 0 8px 18px;
+      }
+
+      .player-label { margin-bottom: 4px; font-size: 10px; }
+      .player-label.right { text-align: right; }
+      .score {
+        font-size: clamp(30px, 6vw, 42px);
+        line-height: 1;
+        font-weight: 650;
+        letter-spacing: -.06em;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .round-label { font-size: 10px; }
+
+      .court {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid #303a32;
+        border-radius: 14px;
+        background: #151c17;
+        box-shadow: 0 28px 80px rgba(0, 0, 0, .28);
+      }
+
+      canvas {
+        display: block;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 900 / 560;
+        cursor: crosshair;
+        touch-action: none;
+      }
+
+      .overlay {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        background: rgba(15, 21, 17, .58);
+        backdrop-filter: blur(5px);
+        text-align: center;
+        transition: opacity .2s ease, visibility .2s ease;
+      }
+
+      .overlay[hidden] { display: none; }
+      .overlay-card { padding: 24px; }
+
+      .eyebrow { margin: 0 0 10px; color: #c4f26b; font-size: 10px; }
+
+      .overlay h2 {
+        margin: 0;
+        font-size: clamp(26px, 5vw, 38px);
+        font-weight: 650;
+        letter-spacing: -.055em;
+      }
+
+      .overlay p:not(.eyebrow) {
+        margin: 10px 0 22px;
+        color: #a5aea5;
+        font-size: 13px;
+      }
+
+      button {
+        min-height: 42px;
+        padding: 0 18px;
+        border: 0;
+        border-radius: 8px;
+        background: #c4f26b;
+        color: #172012;
+        font: inherit;
+        font-size: 12px;
+        font-weight: 750;
+        cursor: pointer;
+        transition: background .15s ease, transform .15s ease;
+      }
+
+      button:hover { background: #d3ff7f; transform: translateY(-1px); }
+      button:focus-visible { outline: 2px solid #f0f3e8; outline-offset: 3px; }
+
+      .bottomline {
+        gap: 12px;
+        padding: 16px 4px 0;
+        font-size: 10px;
+        letter-spacing: .07em;
+        text-transform: none;
+      }
+
+      .key {
+        display: inline-block;
+        margin: 0 2px;
+        padding: 3px 6px;
+        border: 1px solid #354039;
+        border-radius: 4px;
+        color: #b6beb5;
+        font-size: 9px;
+      }
+
+      .mobile-hint { display: none; }
+
+      @media (max-width: 560px) {
+        body { padding: 22px 14px; }
+        .topline { margin-bottom: 18px; }
+        .brand-mark { width: 36px; height: 36px; }
+        .bottomline { font-size: 9px; }
+        .desktop-hint { display: none; }
+        .mobile-hint { display: inline; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="game">
+      <header class="topline">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">P.</div>
+          <div>
+            <h1 class="brand-name">Pong</h1>
+            <p class="brand-caption">The original arcade classic</p>
+          </div>
+        </div>
+        <div class="status" id="status" aria-live="polite">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span id="statusText">Ready to play</span>
+        </div>
+      </header>
+
+      <section class="scoreboard" aria-label="Score">
+        <div>
+          <div class="player-label">You</div>
+          <div class="score" id="playerScore">0</div>
+        </div>
+        <div class="round-label">First to 5</div>
+        <div>
+          <div class="player-label right">CPU</div>
+          <div class="score" id="cpuScore">0</div>
+        </div>
+      </section>
+
+      <div class="court">
+        <canvas id="canvas" width="900" height="560" aria-label="Pong game. Move your paddle with the mouse, touch, W and S, or the arrow keys."></canvas>
+        <div class="overlay" id="overlay">
+          <div class="overlay-card">
+            <p class="eyebrow">Ready when you are</p>
+            <h2 id="overlayTitle">Serve it up.</h2>
+            <p id="overlayMessage">First player to five points wins.</p>
+            <button id="startButton" type="button">Start game</button>
+          </div>
+        </div>
+      </div>
+
+      <footer class="bottomline">
+        <span class="desktop-hint">Move <kbd class="key">W</kbd><kbd class="key">S</kbd> or <kbd class="key">↑</kbd><kbd class="key">↓</kbd> · Mouse works too</span>
+        <span class="mobile-hint">Drag anywhere on the court to move</span>
+        <span><kbd class="key">Space</kbd> Pause</span>
+      </footer>
+    </main>
+
+    <script>
+      (() => {
+        const canvas = document.querySelector("#canvas");
+        const ctx = canvas.getContext("2d");
+        const overlay = document.querySelector("#overlay");
+        const title = document.querySelector("#overlayTitle");
+        const message = document.querySelector("#overlayMessage");
+        const startButton = document.querySelector("#startButton");
+        const status = document.querySelector("#status");
+        const statusText = document.querySelector("#statusText");
+        const playerScoreElement = document.querySelector("#playerScore");
+        const cpuScoreElement = document.querySelector("#cpuScore");
+        const width = canvas.width;
+        const height = canvas.height;
+        const paddleWidth = 12;
+        const paddleHeight = 94;
+        const keys = new Set();
+        const player = { x: 34, y: (height - paddleHeight) / 2, score: 0 };
+        const cpu = { x: width - 34 - paddleWidth, y: (height - paddleHeight) / 2, score: 0 };
+        const ball = { x: width / 2, y: height / 2, vx: 0, vy: 0, radius: 8 };
+        let state = "ready";
+        let lastTime = 0;
+
+        function setStatus(text, live = false) {
+          statusText.textContent = text;
+          status.classList.toggle("is-live", live);
+        }
+
+        function draw() {
+          ctx.clearRect(0, 0, width, height);
+          ctx.fillStyle = "#151c17";
+          ctx.fillRect(0, 0, width, height);
+
+          ctx.setLineDash([7, 11]);
+          ctx.strokeStyle = "#344038";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(width / 2, 0);
+          ctx.lineTo(width / 2, height);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          ctx.fillStyle = "#c4f26b";
+          ctx.beginPath();
+          ctx.roundRect(player.x, player.y, paddleWidth, paddleHeight, 6);
+          ctx.roundRect(cpu.x, cpu.y, paddleWidth, paddleHeight, 6);
+          ctx.fill();
+
+          ctx.shadowColor = "rgba(196, 242, 107, .5)";
+          ctx.shadowBlur = 18;
+          ctx.beginPath();
+          ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+
+          if (state !== "playing") {
+            ctx.globalAlpha = .17;
+            ctx.beginPath();
+            ctx.arc(width / 2, height / 2, 34, 0, Math.PI * 2);
+            ctx.strokeStyle = "#c4f26b";
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+          }
+        }
+
+        function resetBall(direction = Math.random() < .5 ? -1 : 1) {
+          ball.x = width / 2;
+          ball.y = height / 2;
+          const angle = (Math.random() * .7 - .35);
+          const speed = 390;
+          ball.vx = Math.cos(angle) * speed * direction;
+          ball.vy = Math.sin(angle) * speed;
+        }
+
+        function movePlayer(delta) {
+          const up = keys.has("ArrowUp") || keys.has("w") || keys.has("W");
+          const down = keys.has("ArrowDown") || keys.has("s") || keys.has("S");
+          if (up !== down) player.y += (down ? 1 : -1) * 520 * delta;
+          player.y = Math.max(0, Math.min(height - paddleHeight, player.y));
+        }
+
+        function moveCpu(delta) {
+          const target = ball.y - paddleHeight / 2;
+          const difference = target - cpu.y;
+          const step = Math.min(Math.abs(difference), 370 * delta);
+          cpu.y += Math.sign(difference) * step;
+          cpu.y = Math.max(0, Math.min(height - paddleHeight, cpu.y));
+        }
+
+        function scorePoint(scorer) {
+          scorer.score += 1;
+          playerScoreElement.textContent = player.score;
+          cpuScoreElement.textContent = cpu.score;
+          if (scorer.score >= 5) {
+            state = "over";
+            const playerWon = scorer === player;
+            title.textContent = playerWon ? "You win." : "CPU wins.";
+            message.textContent = playerWon ? "Nice playing. Fancy a rematch?" : "So close. Give it another go?";
+            startButton.textContent = "Play again";
+            overlay.hidden = false;
+            setStatus("Game over");
+            return;
+          }
+          resetBall(scorer === player ? 1 : -1);
+        }
+
+        function update(delta) {
+          movePlayer(delta);
+          moveCpu(delta);
+          ball.x += ball.vx * delta;
+          ball.y += ball.vy * delta;
+
+          if (ball.y - ball.radius <= 0 || ball.y + ball.radius >= height) {
+            ball.vy *= -1;
+            ball.y = Math.max(ball.radius, Math.min(height - ball.radius, ball.y));
+          }
+
+          const hitPlayer = ball.vx < 0 && ball.x - ball.radius <= player.x + paddleWidth &&
+            ball.x + ball.radius >= player.x && ball.y + ball.radius >= player.y &&
+            ball.y - ball.radius <= player.y + paddleHeight;
+          const hitCpu = ball.vx > 0 && ball.x + ball.radius >= cpu.x &&
+            ball.x - ball.radius <= cpu.x + paddleWidth && ball.y + ball.radius >= cpu.y &&
+            ball.y - ball.radius <= cpu.y + paddleHeight;
+
+          if (hitPlayer || hitCpu) {
+            const paddle = hitPlayer ? player : cpu;
+            const direction = hitPlayer ? 1 : -1;
+            const offset = (ball.y - (paddle.y + paddleHeight / 2)) / (paddleHeight / 2);
+            const speed = Math.min(Math.hypot(ball.vx, ball.vy) * 1.055, 820);
+            const angle = offset * .9;
+            ball.vx = Math.cos(angle) * speed * direction;
+            ball.vy = Math.sin(angle) * speed;
+            ball.x = hitPlayer ? player.x + paddleWidth + ball.radius : cpu.x - ball.radius;
+          }
+
+          if (ball.x + ball.radius < 0) scorePoint(cpu);
+          else if (ball.x - ball.radius > width) scorePoint(player);
+        }
+
+        function frame(time) {
+          const delta = Math.min((time - lastTime) / 1000 || 0, .03);
+          lastTime = time;
+          if (state === "playing") update(delta);
+          draw();
+          requestAnimationFrame(frame);
+        }
+
+        function startGame() {
+          if (state !== "over") {
+            player.score = 0;
+            cpu.score = 0;
+            playerScoreElement.textContent = "0";
+            cpuScoreElement.textContent = "0";
+          }
+          state = "playing";
+          overlay.hidden = true;
+          startButton.textContent = "Start game";
+          resetBall();
+          setStatus("In play", true);
+        }
+
+        function pauseGame() {
+          if (state === "playing") {
+            state = "paused";
+            title.textContent = "Take your time.";
+            message.textContent = "The match is paused.";
+            startButton.textContent = "Resume game";
+            overlay.hidden = false;
+            setStatus("Paused");
+          } else if (state === "paused") {
+            state = "playing";
+            overlay.hidden = true;
+            setStatus("In play", true);
+          }
+        }
+
+        function movePaddleToPointer(event) {
+          const rect = canvas.getBoundingClientRect();
+          const scale = height / rect.height;
+          player.y = Math.max(0, Math.min(height - paddleHeight, (event.clientY - rect.top) * scale - paddleHeight / 2));
+        }
+
+        startButton.addEventListener("click", startGame);
+        canvas.addEventListener("pointermove", movePaddleToPointer);
+        canvas.addEventListener("pointerdown", (event) => {
+          canvas.setPointerCapture(event.pointerId);
+          movePaddleToPointer(event);
+        });
+        window.addEventListener("keydown", (event) => {
+          if (["ArrowUp", "ArrowDown", " "].includes(event.key)) event.preventDefault();
+          keys.add(event.key);
+          if (event.key === " " && !event.repeat) pauseGame();
+        });
+        window.addEventListener("keyup", (event) => keys.delete(event.key));
+        window.addEventListener("blur", () => keys.clear());
+
+        draw();
+        requestAnimationFrame(frame);
+      })();
+    </script>
+  </body>
+</html>
