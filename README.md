@@ -4,3 +4,4 @@
 
 Jefe del proyecto: Jaume 
 
+desarrollador: Carlos Cardos
